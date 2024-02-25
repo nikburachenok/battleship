@@ -2,12 +2,10 @@ import { User } from "../user/UserModel";
 
 export class Game {
     id: number;
-    initiator: User;
-    anotherUser: User;
+    users: Array<User>
 
-    constructor(id: number, initiator: User, anotherUser: User) {
+    constructor(id: number, users: Array<User>) {
         this.id = id;
-        this.initiator = initiator;
-        this.anotherUser = anotherUser;
+        this.users = users;
     }
 }

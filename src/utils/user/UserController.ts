@@ -1,10 +1,13 @@
 import { User } from "./UserModel";
 import fsPr from 'fs/promises';
 import { join, dirname } from 'path';
+import { ConnectionRepository } from "../connection/ConnectionRepository";
+import { Connection } from "../connection/ConnectionModel";
+import WebSocket from 'ws';
 
 export class UserController {
     currentUserId: number = 1000;
-    async saveUserOrLogin(user: User) {
+    async saveUserOrLogin(user: User, cr: ConnectionRepository, w: WebSocket) {
         let resultMessage: string;
         let info = await fsPr.readFile(join(dirname(__dirname), 'user', 'userDB.json'));
         let users: Array<User> = JSON.parse(info.toString());
@@ -20,6 +23,8 @@ export class UserController {
             if (user.password !== dbUser.password) {
                 data.error = true;
                 data.errorText = 'AAAAAAAAAAAAAAAAA';
+            } else {
+                cr.saveNewConnection(new Connection(cr.getLastId(await cr.getConnections()) + 1, this.currentUserId, w));
             }
 
             resultMessage = JSON.stringify({
@@ -43,6 +48,7 @@ export class UserController {
                 id: 0
             });
             await fsPr.writeFile(join(dirname(__dirname), 'user', 'userDB.json'), JSON.stringify(users));
+            cr.saveNewConnection(new Connection(cr.getLastId(await cr.getConnections()) + 1, this.currentUserId, w));
         }
         return resultMessage;
     }
