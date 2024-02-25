@@ -12,3 +12,10 @@ export enum MessageType {
     Turn = 'turn',
     Finish = 'finish'
 }
+
+export enum Ships {
+    "small" = 1,
+    "medium" = 2,
+    "large" = 3,
+    "huge" = 4
+}

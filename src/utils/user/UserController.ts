@@ -2,18 +2,16 @@ import { User } from "./UserModel";
 import fsPr from 'fs/promises';
 import { join, dirname } from 'path';
 import { ConnectionRepository } from "../connection/ConnectionRepository";
-import { Connection } from "../connection/ConnectionModel";
-import WebSocket from 'ws';
 
 export class UserController {
-    currentUserId: number = 1000;
-    async saveUserOrLogin(user: User, cr: ConnectionRepository, w: WebSocket) {
+    async saveUserOrLogin(user: User, cr: ConnectionRepository, connectionId: number) {
+        let userId: number;
         let resultMessage: string;
         let info = await fsPr.readFile(join(dirname(__dirname), 'user', 'userDB.json'));
         let users: Array<User> = JSON.parse(info.toString());
         let dbUser = await this.getUserByName(user.name);
         if (dbUser) {
-            this.currentUserId = dbUser.id;
+            userId = dbUser.id;
             let data = {
                 name: user.name,
                 index: user.id,
@@ -24,7 +22,7 @@ export class UserController {
                 data.error = true;
                 data.errorText = 'AAAAAAAAAAAAAAAAA';
             } else {
-                cr.saveNewConnection(new Connection(cr.getLastId(await cr.getConnections()) + 1, this.currentUserId, w));
+                cr.connections[await cr.getConnectionIndexById(connectionId)].userId = userId;
             }
 
             resultMessage = JSON.stringify({
@@ -34,7 +32,7 @@ export class UserController {
             });
         } else {
             user.id = this.getLastId(users) + 1;
-            this.currentUserId = user.id;
+            userId = user.id;
             user.wins = 0;
             users.push(user);
             resultMessage = JSON.stringify({
@@ -48,7 +46,7 @@ export class UserController {
                 id: 0
             });
             await fsPr.writeFile(join(dirname(__dirname), 'user', 'userDB.json'), JSON.stringify(users));
-            cr.saveNewConnection(new Connection(cr.getLastId(await cr.getConnections()) + 1, this.currentUserId, w));
+            cr.connections[await cr.getConnectionIndexById(connectionId)].userId = userId;
         }
         return resultMessage;
     }

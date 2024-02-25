@@ -8,16 +8,21 @@ export class ConnectionRepository {
     }
 
     async saveNewConnection(conn: Connection) {
-        this.connections.push(conn)
+        this.connections.push(conn);
+        return conn;
     }
 
-    async getConnectionIndexByUserId(userId: number) {
-        return this.connections.findIndex(item => item.userId === userId);
+    async getConnectionIndexById(id: number) {
+        return this.connections.findIndex(item => item.id === id);
     }
 
-    async removeConnectionByUserId(userId: number) {
-        const connectionIndex = await this.getConnectionIndexByUserId(userId);
+    async removeConnectionById(id: number) {
+        const connectionIndex = await this.getConnectionIndexById(id);
         this.connections.splice(connectionIndex, 1);
+    }
+
+    getConnectionByUserId(userId: number) {
+        return this.connections.find(item => item.userId === userId);
     }
 
     getLastId(arr: Array<Connection>) {

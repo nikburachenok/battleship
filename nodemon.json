@@ -1,0 +1,7 @@
+{
+    "ignore": [
+        "./src/utils/game/gameDB.json",
+        "./src/utils/room/roomDB.json",
+        "./src/utils/user/userDB.json"
+    ]
+}

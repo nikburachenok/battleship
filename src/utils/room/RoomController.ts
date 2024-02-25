@@ -55,7 +55,7 @@ export class RoomController {
             await fsPr.writeFile(join(dirname(__dirname), 'room', 'roomDB.json'), JSON.stringify(rooms));
         }
 
-        let data = rooms.map(item => {
+        return rooms.map(item => {
             return {
                 roomId: item.id,
                 roomUsers: item.users.map(user => {
@@ -63,11 +63,20 @@ export class RoomController {
                 })
             }
         });
-        return JSON.stringify({
-            type: "update_room",
-            data: JSON.stringify(data),
-            id: 0
-        });
+
+        // let data = rooms.map(item => {
+        //     return {
+        //         roomId: item.id,
+        //         roomUsers: item.users.map(user => {
+        //             return { name: user.name, index: user.id }
+        //         })
+        //     }
+        // });
+        // return {
+        //     type: "update_room",
+        //     data: JSON.stringify(data),
+        //     id: 0
+        // };
     }
 
     async getRoomById(id: number) {
