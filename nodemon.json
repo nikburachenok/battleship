@@ -1,0 +1,5 @@
+{
+    "ignore": [
+        "./src/utils/user/userDB.json"
+    ]
+}
