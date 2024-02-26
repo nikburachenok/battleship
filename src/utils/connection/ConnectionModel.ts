@@ -1,9 +1,8 @@
-import { User } from "../user/UserModel";
 import WebSocket from 'ws';
 
 export class Connection {
     id: number;
-    userId: number = 0;
+    userId: number = -1;
     webSocket: WebSocket;
 
     constructor(id: number, webSocket: WebSocket) {

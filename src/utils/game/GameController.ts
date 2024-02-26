@@ -1,3 +1,4 @@
+import { User } from "../user/UserModel";
 import { Field } from "../field/FieldModel";
 import { Game } from "./GameModel";
 
@@ -24,10 +25,30 @@ export class GameController {
         };
     }
 
+    createNewGameForRandom(user: User) {
+        let game: Game = new Game(this.getLastId(this.allGames) + 1, [user]);
+        this.allGames.push(game);
+
+        let data = {
+            idGame: game?.id,
+            idPlayer: user.id,
+        };
+        return {
+            type: "create_game",
+            data: JSON.stringify(data),
+            id: 0
+        };
+    }
+
     getGameById(id: number) {
         let game = this.allGames.find(item => item.id === id);
         return game;
     };
+
+    getGameIndexByUserId(userId: number) {
+        let game = this.allGames.findIndex(item => item.users.find((user: any) => user.index === userId));
+        return game;
+    }
 
     getLastId(arr: Array<Game>) {
         let max = -1;

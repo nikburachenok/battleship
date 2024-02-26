@@ -3,21 +3,25 @@ import { Connection } from "./ConnectionModel";
 export class ConnectionRepository {
     connections: Array<Connection> = [];
 
-    async getConnections() {
+    getConnections() {
         return this.connections;
     }
 
-    async saveNewConnection(conn: Connection) {
+    saveNewConnection(conn: Connection) {
         this.connections.push(conn);
         return conn;
     }
 
-    async getConnectionIndexById(id: number) {
+    getConnectionIndexById(id: number) {
         return this.connections.findIndex(item => item.id === id);
     }
 
-    async removeConnectionById(id: number) {
-        const connectionIndex = await this.getConnectionIndexById(id);
+    getConnectionById(id: number) {
+        return this.connections.find(item => item.id === id);
+    }
+
+    removeConnectionById(id: number) {
+        const connectionIndex = this.getConnectionIndexById(id);
         this.connections.splice(connectionIndex, 1);
     }
 

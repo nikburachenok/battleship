@@ -1,13 +1,11 @@
 import { Room } from "./RoomModel";
-import fsPr from 'fs/promises';
-import { join, dirname } from 'path';
 import { User } from "../user/UserModel";
 
 export class RoomController {
-    async getAvailableRooms() {
-        let info = await fsPr.readFile(join(dirname(__dirname), 'room', 'roomDB.json'));
-        let rooms: Array<Room> = JSON.parse(info.toString());
-        let data = rooms.map(item => {
+    rooms: Array<Room> = [];
+
+    getAvailableRooms() {
+        let data = this.rooms.map(item => {
             return {
                 roomId: item.id,
                 roomUsers: item.users.map(user => {
@@ -22,16 +20,13 @@ export class RoomController {
         });
     }
 
-    async createNewRoom(user: User) {
-        let info = await fsPr.readFile(join(dirname(__dirname), 'room', 'roomDB.json'));
-        let rooms: Array<Room> = JSON.parse(info.toString());
+    createNewRoom(user: User) {
         let room: Room = new Room();
-        room.id = this.getLastId(rooms) + 1;
+        room.id = this.getLastId(this.rooms) + 1;
         room.users.push(user);
-        rooms.push(room);
-        await fsPr.writeFile(join(dirname(__dirname), 'room', 'roomDB.json'), JSON.stringify(rooms));
+        this.rooms.push(room);
 
-        let data = rooms.map(item => {
+        let data = this.rooms.map(item => {
             return {
                 roomId: item.id,
                 roomUsers: item.users.map(user => {
@@ -46,16 +41,23 @@ export class RoomController {
         });
     }
 
-    async addUserToRoom(user: User, messageData: string) {
-        let info = await fsPr.readFile(join(dirname(__dirname), 'room', 'roomDB.json'));
-        let rooms: Array<Room> = JSON.parse(info.toString());
-        let room = rooms.find(item => item.id === JSON.parse(messageData).indexRoom);
+    addUserToRoom(user: User, messageData: string) {
+        let room = this.rooms.find(item => item.id === JSON.parse(messageData).indexRoom);
         if (room !== undefined) {
+            if (room.users[0].id === user.id) {
+                return;
+            }
+            if (room.users.length === 2) {
+                return;
+            }
+            let anotherRoomIndex = this.getRoomIndexByUserId(user.id);
+            if (anotherRoomIndex >= 0) {
+                this.rooms.splice(anotherRoomIndex, 1);
+            }
             room.users.push(user);
-            await fsPr.writeFile(join(dirname(__dirname), 'room', 'roomDB.json'), JSON.stringify(rooms));
         }
 
-        return rooms.map(item => {
+        return this.rooms.map(item => {
             return {
                 roomId: item.id,
                 roomUsers: item.users.map(user => {
@@ -63,26 +65,15 @@ export class RoomController {
                 })
             }
         });
-
-        // let data = rooms.map(item => {
-        //     return {
-        //         roomId: item.id,
-        //         roomUsers: item.users.map(user => {
-        //             return { name: user.name, index: user.id }
-        //         })
-        //     }
-        // });
-        // return {
-        //     type: "update_room",
-        //     data: JSON.stringify(data),
-        //     id: 0
-        // };
     }
 
-    async getRoomById(id: number) {
-        let info = await fsPr.readFile(join(dirname(__dirname), 'room', 'roomDB.json'));
-        let rooms: Array<Room> = JSON.parse(info.toString());
-        let room = rooms.find(item =>  item.id === id);
+    getRoomIndexByUserId(userId: number) {
+        let room = this.rooms.findIndex(item => item.users.find(user => user.id === userId));
+        return room;
+    }
+
+    getRoomById(id: number) {
+        let room = this.rooms.find(item =>  item.id === id);
         return room;
     };
 

@@ -1,1 +1,9 @@
-export type ShipData = { position: { x: number, y: number }, direction: boolean, length: number, type: "small" | "medium" | "large" | "huge" }[]
+export type ShipData = {
+    type: "small" | "medium" | "large" | "huge"
+    position: {
+        x: number,
+        y: number
+    },
+    length: number,
+    direction: boolean
+}[]

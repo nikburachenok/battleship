@@ -20,9 +20,13 @@ export class UserController {
             };
             if (user.password !== dbUser.password) {
                 data.error = true;
-                data.errorText = 'AAAAAAAAAAAAAAAAA';
+                data.errorText = 'Wrong or duplicate user name or wrong password';
             } else {
-                cr.connections[await cr.getConnectionIndexById(connectionId)].userId = userId;
+                if (cr.getConnectionByUserId(dbUser.id)) {
+                    data.error = true;
+                    data.errorText = 'This user has already entered the game. Please, use another credentials';
+                }
+                cr.connections[cr.getConnectionIndexById(connectionId)].userId = userId;
             }
 
             resultMessage = JSON.stringify({
@@ -46,7 +50,7 @@ export class UserController {
                 id: 0
             });
             await fsPr.writeFile(join(dirname(__dirname), 'user', 'userDB.json'), JSON.stringify(users));
-            cr.connections[await cr.getConnectionIndexById(connectionId)].userId = userId;
+            cr.connections[cr.getConnectionIndexById(connectionId)].userId = userId;
         }
         return resultMessage;
     }
@@ -61,9 +65,9 @@ export class UserController {
     async getWinnersInfo() {
         let info = await fsPr.readFile(join(dirname(__dirname), 'user', 'userDB.json'));
         let users: Array<User> = JSON.parse(info.toString());
-        let data = users.map(item => {
+        let data = users.sort(this.sort).map(item => {
             return { name: item.name, wins: item.wins };
-        })
+        });
         return JSON.stringify({
             type: "update_winners",
             data: JSON.stringify(data),
@@ -78,6 +82,16 @@ export class UserController {
         return user;
     };
 
+    async updateUser(userId: number) {
+        let info = await fsPr.readFile(join(dirname(__dirname), 'user', 'userDB.json'));
+        let users: Array<User> = JSON.parse(info.toString());
+        let user = users.find(item =>  item.id === userId);
+        if (user) {
+            ++user.wins;
+            await fsPr.writeFile(join(dirname(__dirname), 'user', 'userDB.json'), JSON.stringify(users));
+        }
+    }
+
     getLastId(arr: Array<User>) {
         let max = -1;
         for (let i = 0; i < arr.length; i++) {
@@ -86,5 +100,9 @@ export class UserController {
             }
         }
         return max;
+    }
+
+    sort(a: User, b: User) {
+        return b.wins - a.wins;
     }
 }

@@ -10,7 +10,8 @@ export enum MessageType {
     CreateGame = 'create_game',
     StartGame = 'start_game',
     Turn = 'turn',
-    Finish = 'finish'
+    Finish = 'finish',
+    SinglePlay = 'single_play'
 }
 
 export enum Ships {
@@ -18,4 +19,11 @@ export enum Ships {
     "medium" = 2,
     "large" = 3,
     "huge" = 4
+}
+
+export enum Attacks {
+    "miss",
+    "shot",
+    "killed",
+    "wrongAttack"
 }
